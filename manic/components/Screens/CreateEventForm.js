@@ -4,7 +4,14 @@ import { TextInput, Button, RadioButton } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-import {createEvent} from '../Event.js';
+
+import {generateClient} from 'aws-amplify/api';
+import {createEvent} from '../../src/graphql/mutations';
+import {listEvents} from '../../src/graphql/queries';
+import {Amplify} from 'aws-amplify';
+import amplifyconfig from '../../src/amplifyconfiguration.json';
+Amplify.configure(amplifyconfig);
+const client = generateClient();
 
 
 //Helper function displaying a checkbox used to determine 
@@ -29,6 +36,10 @@ const CreateCalendarEventForm = ({ onCancel}) => {
   const [notes, setNotes] = useState('');
   const [isDurationVisible, setIsDurationVisible] = useState(false);
 
+  initialState = {duration: '', notes:'', startDate: '', title:'', type:''};
+  const [formState, setFormState] = useState(initialState);
+  const [events, setEvent] = useState([]);
+
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -37,17 +48,53 @@ const CreateCalendarEventForm = ({ onCancel}) => {
     }
   };
 
-  const handleSubmit = () => {
-    createEvent(title, type, startDate, duration, notes)
+  async function handleSubmit () {
+    formState.duration = duration;
+    formState.notes = notes;
+    formState.startDate = startDate;
+    formState.title = title;
+    formState.type = type;
+    try {
+      if (!formState.startDate ||
+          !formState.title ||
+          !formState.type) return;
+      
+      const event = {...formState};
+      setEvent([...events, event]);
+      console.log("event: ", event)
+      setFormState(initialState);
+      await client.graphql({
+        query: createEvent,
+        variables: {
+          input: event
+        }
+      });
+    } catch(err) {
+      console.log('Error Creating Event:', err);
+    }
     console.log('--------')
     resetForm();
   };
+
+
+  async function getEvents() {
+    try {
+      const eventData = await client.graphql({
+        query: listEvents
+      });
+      const events = eventData.data.listEvents.items;
+      setEvent(events);
+      console.log(events)
+    } catch(err) {
+      console.log('error fetching todos');
+    }
+  }
 
   const resetForm = () => {
     setTitle('');
     setType('event');
     setStartDate(new Date());
-    setDuration('');
+    setDuration('0');
     setNotes('');
   };
 
@@ -124,9 +171,14 @@ const CreateCalendarEventForm = ({ onCancel}) => {
         Create Event
       </Button>
 
-      <Button mode="contained" onPress={onCancel}>
+      <Button style={styles.input} mode="contained" onPress={onCancel}>
         Cancel
       </Button>
+
+      <Button style={styles.input} mode="contained" onPress={getEvents}>
+        Get All Events
+      </Button>
+
     </ScrollView>
   );
 };

@@ -4,6 +4,29 @@ import {Button} from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
 
 
+const userSelector = (context) => [context.user];
+import { withAuthenticator, useAuthenticator} from '@aws-amplify/ui-react-native';
+const SignOutButton = () => {
+  const {user, signOut} = useAuthenticator(userSelector);
+  return (
+
+    <View style={styles.buttonContainer}>
+        <Button 
+          title="Sign Out"
+          mode="contained"
+          onPress={signOut}
+          style={styles.button}
+          labelStyle={styles.buttonText}
+        >
+        Sign Out
+        </Button>
+      </View>
+  );
+};
+
+
+
+
 const CreateNewEventButton = ({navigation}) => {
     return (
       <View style={styles.buttonContainer}>
@@ -77,6 +100,7 @@ const HomeScreen = ({ navigation }) => {
       />
       <CreateNewEventButton navigation={navigation}/>
       <CreateNewWorkPostButton navigation={navigation}/>
+      <SignOutButton/>
     </View>
   );
 };

@@ -7,10 +7,14 @@ import CreateCalendarEventForm from '../components/Screens/CreateEventForm'; // 
 import CreateWorkPostForm from '../components/Screens/WorkPostForm';
 import LogInForm from '../components/Screens/LogInForm';
 
-// Amplfiy imports 
+
+//--------------------- AWS Amplify imports & calls ---------------------
 import { Amplify } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import amplifyconfig from '../src/amplifyconfiguration.json';
 Amplify.configure(amplifyconfig);
+import { withAuthenticator, useAuthenticator} from '@aws-amplify/ui-react-native';
+//-----------------------------------------------------------------------
 
 const Stack = createStackNavigator();
 
@@ -26,15 +30,8 @@ const CreateWorkPostScreen = ({navigation}) => {
   );
 };
 
-const LogInScreen = ({navigation}) => {
-  return (
-    <LogInForm onCancel={() => navigation.goBack()}/>
-  )
-};
 
-
-
-export default function App() {
+const App = () => {
   return (
     <Stack.Navigator 
       initialRouteName="Home"
@@ -51,10 +48,11 @@ export default function App() {
       }}
     >
       <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Home' }} />
-      <Stack.Screen name="LogIn" component={LogInScreen} options={{title: 'Welcome. Log In'}}/>
       <Stack.Screen name="CreateCalendarEvent" component={CreateCalendarEventScreen} options={{ title: 'New Event' }} />
       <Stack.Screen name="CreateWorkPost" component={CreateWorkPostScreen} options= {{title: 'New Work Post'}} />
     </Stack.Navigator>
   
   );
 }
+
+export default withAuthenticator(App);
