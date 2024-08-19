@@ -1,6 +1,90 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const createCalendar = /* GraphQL */ `
+  mutation CreateCalendar(
+    $input: CreateCalendarInput!
+    $condition: ModelCalendarConditionInput
+  ) {
+    createCalendar(input: $input, condition: $condition) {
+      id
+      name
+      events {
+        nextToken
+        __typename
+      }
+      owner {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      ownerId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateCalendar = /* GraphQL */ `
+  mutation UpdateCalendar(
+    $input: UpdateCalendarInput!
+    $condition: ModelCalendarConditionInput
+  ) {
+    updateCalendar(input: $input, condition: $condition) {
+      id
+      name
+      events {
+        nextToken
+        __typename
+      }
+      owner {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      ownerId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteCalendar = /* GraphQL */ `
+  mutation DeleteCalendar(
+    $input: DeleteCalendarInput!
+    $condition: ModelCalendarConditionInput
+  ) {
+    deleteCalendar(input: $input, condition: $condition) {
+      id
+      name
+      events {
+        nextToken
+        __typename
+      }
+      owner {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      ownerId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
 export const createEvent = /* GraphQL */ `
   mutation CreateEvent(
     $input: CreateEventInput!
@@ -13,6 +97,15 @@ export const createEvent = /* GraphQL */ `
       type
       duration
       notes
+      calendar {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      calendarId
       createdAt
       updatedAt
       __typename
@@ -31,6 +124,15 @@ export const updateEvent = /* GraphQL */ `
       type
       duration
       notes
+      calendar {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      calendarId
       createdAt
       updatedAt
       __typename
@@ -49,6 +151,15 @@ export const deleteEvent = /* GraphQL */ `
       type
       duration
       notes
+      calendar {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      calendarId
       createdAt
       updatedAt
       __typename
@@ -75,6 +186,10 @@ export const createUser = /* GraphQL */ `
         __typename
       }
       posts {
+        nextToken
+        __typename
+      }
+      calendars {
         nextToken
         __typename
       }
@@ -107,6 +222,10 @@ export const updateUser = /* GraphQL */ `
         nextToken
         __typename
       }
+      calendars {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -133,6 +252,10 @@ export const deleteUser = /* GraphQL */ `
         __typename
       }
       posts {
+        nextToken
+        __typename
+      }
+      calendars {
         nextToken
         __typename
       }

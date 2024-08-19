@@ -1,6 +1,81 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const onCreateCalendar = /* GraphQL */ `
+  subscription OnCreateCalendar($filter: ModelSubscriptionCalendarFilterInput) {
+    onCreateCalendar(filter: $filter) {
+      id
+      name
+      events {
+        nextToken
+        __typename
+      }
+      owner {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      ownerId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateCalendar = /* GraphQL */ `
+  subscription OnUpdateCalendar($filter: ModelSubscriptionCalendarFilterInput) {
+    onUpdateCalendar(filter: $filter) {
+      id
+      name
+      events {
+        nextToken
+        __typename
+      }
+      owner {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      ownerId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteCalendar = /* GraphQL */ `
+  subscription OnDeleteCalendar($filter: ModelSubscriptionCalendarFilterInput) {
+    onDeleteCalendar(filter: $filter) {
+      id
+      name
+      events {
+        nextToken
+        __typename
+      }
+      owner {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      ownerId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
 export const onCreateEvent = /* GraphQL */ `
   subscription OnCreateEvent($filter: ModelSubscriptionEventFilterInput) {
     onCreateEvent(filter: $filter) {
@@ -10,6 +85,15 @@ export const onCreateEvent = /* GraphQL */ `
       type
       duration
       notes
+      calendar {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      calendarId
       createdAt
       updatedAt
       __typename
@@ -25,6 +109,15 @@ export const onUpdateEvent = /* GraphQL */ `
       type
       duration
       notes
+      calendar {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      calendarId
       createdAt
       updatedAt
       __typename
@@ -40,6 +133,15 @@ export const onDeleteEvent = /* GraphQL */ `
       type
       duration
       notes
+      calendar {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      calendarId
       createdAt
       updatedAt
       __typename
@@ -63,6 +165,10 @@ export const onCreateUser = /* GraphQL */ `
         __typename
       }
       posts {
+        nextToken
+        __typename
+      }
+      calendars {
         nextToken
         __typename
       }
@@ -92,6 +198,10 @@ export const onUpdateUser = /* GraphQL */ `
         nextToken
         __typename
       }
+      calendars {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -115,6 +225,10 @@ export const onDeleteUser = /* GraphQL */ `
         __typename
       }
       posts {
+        nextToken
+        __typename
+      }
+      calendars {
         nextToken
         __typename
       }

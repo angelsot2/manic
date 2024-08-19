@@ -15,6 +15,8 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@aws-amplify/api-graphql": "^4.1.14",
+    "@aws-amplify/auth": "^6.3.14",
     "@aws-amplify/react-native": "^1.1.4",
     "@aws-amplify/ui-react-native": "^2.2.3",
     "@expo/vector-icons": "^14.0.2",
@@ -24,7 +26,7 @@
     "@react-native-picker/picker": "2.7.5",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
-    "aws-amplify": "^6.5.0",
+    "aws-amplify": "^6.5.1",
     "expo": "~51.0.22",
     "expo-auth-session": "~5.5.2",
     "expo-constants": "~16.0.2",
@@ -47,7 +49,8 @@
     "react-native-reanimated": "~3.10.1",
     "react-native-safe-area-context": "4.10.5",
     "react-native-screens": "3.31.1",
-    "react-native-web": "~0.19.10"
+    "react-native-web": "~0.19.10",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

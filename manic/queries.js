@@ -1,6 +1,51 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const getCalendar = /* GraphQL */ `
+  query GetCalendar($id: ID!) {
+    getCalendar(id: $id) {
+      id
+      name
+      events {
+        nextToken
+        __typename
+      }
+      owner {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      ownerId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listCalendars = /* GraphQL */ `
+  query ListCalendars(
+    $filter: ModelCalendarFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listCalendars(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
 export const getEvent = /* GraphQL */ `
   query GetEvent($id: ID!) {
     getEvent(id: $id) {
@@ -10,6 +55,15 @@ export const getEvent = /* GraphQL */ `
       type
       duration
       notes
+      calendar {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      calendarId
       createdAt
       updatedAt
       __typename
@@ -30,6 +84,7 @@ export const listEvents = /* GraphQL */ `
         type
         duration
         notes
+        calendarId
         createdAt
         updatedAt
         __typename
@@ -56,6 +111,10 @@ export const getUser = /* GraphQL */ `
         __typename
       }
       posts {
+        nextToken
+        __typename
+      }
+      calendars {
         nextToken
         __typename
       }
@@ -124,6 +183,70 @@ export const listPosts = /* GraphQL */ `
         duration
         sourceUserId
         viewLevel
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const calendarsByOwnerIdAndId = /* GraphQL */ `
+  query CalendarsByOwnerIdAndId(
+    $ownerId: ID!
+    $id: ModelIDKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelCalendarFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    calendarsByOwnerIdAndId(
+      ownerId: $ownerId
+      id: $id
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        name
+        ownerId
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const eventsByCalendarIdAndId = /* GraphQL */ `
+  query EventsByCalendarIdAndId(
+    $calendarId: ID!
+    $id: ModelIDKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelEventFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    eventsByCalendarIdAndId(
+      calendarId: $calendarId
+      id: $id
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        title
+        startDate
+        type
+        duration
+        notes
+        calendarId
         createdAt
         updatedAt
         __typename

@@ -21,6 +21,13 @@ const CreateWorkPostForm = ({onCancel}) => {
                 onChangeText={text => setTitle(text)}
                 style={styles.input}
             />
+            <TextInput
+                label="Location"
+                value={location}
+                onChangeText={text=>setLocation(text)}
+                style={styles.input}
+            />
+
         </ScrollView>
     )
 }

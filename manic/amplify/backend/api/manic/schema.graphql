@@ -2,6 +2,16 @@
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
+type Calendar @model {
+  id: ID!
+  name: String!
+  events: [Event] @hasMany(indexName: "byCalendar", fields: ["id"])
+  owner: User @belongsTo(fields: ["ownerId"])
+  ownerId: ID @index(name: "byOwner", sortKeyFields: ["id"])
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
 type Event @model {
   id: ID!
   title: String!
@@ -9,6 +19,10 @@ type Event @model {
   type: String!
   duration: Int!
   notes: String
+  calendar: Calendar @belongsTo(fields: ["calendarId"])
+  calendarId: ID! @index(name: "byCalendar", sortKeyFields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
 }
 
 type User @model {
@@ -18,6 +32,7 @@ type User @model {
   email: String!
   friends: [User]
   posts: [Post] @hasMany(indexName: "bySourceUser", fields: ["id"])
+  calendars: [Calendar] @hasMany(indexName: "byOwner", fields: ["id"])
 }
 
 type Post @model {

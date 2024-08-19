@@ -47,7 +47,7 @@ const CreateCalendarEventForm = ({ onCancel}) => {
       setStartDate(new Date(selectedDate.getTime() - offset));
     }
   };
-
+  
   async function handleSubmit () {
     formState.duration = duration;
     formState.notes = notes;
