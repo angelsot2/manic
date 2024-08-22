@@ -1,7 +1,7 @@
 /* This file will include all code to view a calendar as well as 
 edit its contents*/
 import { Calendar } from 'react-native-calendars';
-import { View, Text, StyleSheet, Switch} from 'react-native';
+import { View, Text, StyleSheet, Switch, Pressable} from 'react-native';
 import {Button, TextInput} from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import React, {useState} from 'react';
@@ -59,6 +59,18 @@ const ChangeCalendarTitle = () => {
 
 const ViewSingleCalendar = ({onCancel}) => {
   const navigation = useNavigation();
+
+  const renderDay = ({date, state}) => {
+    return (
+      <View style={styles.dayContainer}>
+        <Text style={[styles.dayText, state === 'disabled' && styles.disabledText]}>
+          {date.day}
+        </Text>
+      </View>
+    );
+  };
+
+
   return (
     <View style={styles.container}>
         <VisibilityToggle/>
@@ -86,6 +98,7 @@ const ViewSingleCalendar = ({onCancel}) => {
             return <Text>{date.toString()}</Text>;
         }}
         enableSwipeMonths={true}
+        dayComponent={renderDay}
         />
         <CreateNewEventButton navigation={navigation}/>
 
@@ -99,6 +112,21 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+      },
+      dayContainer: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#cccccc',
+      },
+      dayText: {
+        fontSize: 16,
+        color: "#000000",
+      },
+      disabledText: {
+        color: '#cccccc',
       },
       title: {
         marginBottom: 10,

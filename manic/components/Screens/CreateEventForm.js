@@ -14,8 +14,6 @@ Amplify.configure(amplifyconfig);
 const client = generateClient();
 
 
-//Helper function displaying a checkbox used to determine 
-//if the duration of an event is to be specified
 const DurationCheckbox = ({ checked, onChange }) => {
   return (
     <Pressable
@@ -25,6 +23,7 @@ const DurationCheckbox = ({ checked, onChange }) => {
     </Pressable>
   );
 };
+
 
 
 const CreateCalendarEventForm = ({ onCancel}) => {
@@ -58,11 +57,11 @@ const CreateCalendarEventForm = ({ onCancel}) => {
       if (!formState.startDate ||
           !formState.title ||
           !formState.type) return;
-      
       const event = {...formState};
       setEvent([...events, event]);
       console.log("event: ", event)
-      setFormState(initialState);
+      setFormState(formState);
+
       await client.graphql({
         query: createEvent,
         variables: {
@@ -72,7 +71,7 @@ const CreateCalendarEventForm = ({ onCancel}) => {
     } catch(err) {
       console.log('Error Creating Event:', err);
     }
-    console.log('--------')
+    console.log('--------------------')
     resetForm();
   };
 

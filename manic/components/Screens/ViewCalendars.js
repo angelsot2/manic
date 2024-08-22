@@ -3,29 +3,21 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-
-/*
-  To get user information look at at HomeScreen.js?
-  8|     const userSelector = (context) => [context.user];
-  ...
- 11|     const {user, signOut} = useAuthenticator(userSelector);
-
-*/
+import { useAuthenticator} from '@aws-amplify/ui-react-native';
 
 
 import { createCalendar } from '../../src/graphql/mutations';
-import {v4 as uuidv4} from 'uuid';
-import {Auth} from 'aws-amplify';
-import { getCurrentUser } from 'aws-amplify/auth';
-import {generateClient} from 'aws-amplify/api';
-import {Amplify} from 'aws-amplify';
+import {Amplify, API, graphqlOperation} from 'aws-amplify';
+import amplifyconfig from '../../src/amplifyconfiguration.json';
+Amplify.configure(amplifyconfig);
 
-//import amplifyconfig from '../../src/amplifyconfiguration.json';
-import awsconfig from '../../src/aws-exports';
-Amplify.configure(awsconfig);
+import { generateClient } from 'aws-amplify/api';
 const client = generateClient();
 
+
+
 const ViewCalendars = () => {
+  const {user} = useAuthenticator((context) => [context.user]);
   const navigation = useNavigation();
   const [calendars, setCalendars] = useState([
     { id: '1', name: 'Calendar 1' },
@@ -77,12 +69,28 @@ const ViewCalendars = () => {
   };
 
   /* TODO: create calendar object instance and send it to the database*/
-  const addNewCalendar = () => {
-    const newCalendar = {
-      id: (calendars.length + 1).toString(),
+  const handleCreateCalendar =  async () => {
+    
+    const newCalendarData = {
       name: 'New Calendar',
+      ownerId: user.userId.toString(),
+      
     };
-    setCalendars([...calendars, newCalendar]);
+    console.log('created data');
+
+    setCalendars([...calendars, newCalendarData]);
+    try {
+      //const res = await API.graphql(graphqlOperation(createCalendar, {input: newCalendarData}))
+      await client.graphql({
+        query: createCalendar,
+        variables: {
+          input: newCalendarData
+        }
+      });
+      console.log('calendar created successfully');
+    } catch (error) {
+      console.log('Error creating calendar: ', error);
+    }
   };
 
   return (
@@ -96,7 +104,7 @@ const ViewCalendars = () => {
       />
       <TouchableOpacity
         style={styles.addButton}
-        onPress={addNewCalendar}
+        onPress={handleCreateCalendar}
       >
         <Icon name="plus" size={30} color="#fff" />
       </TouchableOpacity>
@@ -176,19 +184,3 @@ const styles = StyleSheet.create({
 });
 
 export default ViewCalendars;
-
-
-
-  /*const getCurrentUser = async () => {
-    try {
-      const user = await getCurrentUser();
-      console.log('User Info:', user);
-      const userId = user.attributes.sub; // This is typically the unique user ID
-      console.log('User ID:', userId);
-      return { user, userId };
-    } catch (error) {
-      console.error('Error getting user:', error);
-    }
-  };
-  const [ownerID, setOwnerID] = useState('');
-  const [createdCalendar, setCreatedCalendar] = useState(null);*/

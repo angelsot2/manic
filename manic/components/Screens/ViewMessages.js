@@ -56,18 +56,39 @@ const MessagesPage = ({ navigation }) => {
     // Implement your mute logic here, e.g., updating the state or sending a request to the server
   };
 
+  const addNewChat = () => {
+    const newChat = {
+        id: (messages.length+1).toString(),
+        title: 'New Chat',
+        Preview: ''
+    };
+    setMessages([...messages, newChat]);
+  };
+
   return (
-    <FlatList
-      data={messages}
-      renderItem={({ item }) => (
-        <MessageTile item={item} onDelete={handleDelete} onMute={handleMute} navigation={navigation} />
-      )}
-      keyExtractor={item => item.id}
-    />
+    <View style={styles.container}>
+        <FlatList
+        data={messages}
+        renderItem={({ item }) => (
+            <MessageTile item={item} onDelete={handleDelete} onMute={handleMute} navigation={navigation} />
+        )}
+        keyExtractor={item => item.id}
+        />
+        <TouchableOpacity
+            style={styles.addButton}
+            onPress={addNewChat}
+        >
+            <Icon name="chat-plus" size={24} color="#fff"/>
+        </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+      flex: 1,
+      backgroundColor: '#fff',
+  },
   messageTile: {
     backgroundColor: '#f8f8f8',
     padding: 20,
@@ -97,6 +118,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
   },
+  addButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    backgroundColor: 'purple',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
 
 export default MessagesPage;
