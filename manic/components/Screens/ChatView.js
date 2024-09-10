@@ -32,7 +32,13 @@ const OpenChatViewScreen = ({ route }) => {
         item.sender === 'user' ? styles.userBubble : styles.otherBubble,
       ]}
     >
-      <Text style={styles.messageText}>{item.text}</Text>
+      <Text 
+        style={[
+          styles.messageText,
+          item.sender === 'other' ? styles.otherMessageText : {},
+        ]}
+      >
+        {item.text}</Text>
     </View>
   );
 
@@ -97,6 +103,9 @@ const styles = StyleSheet.create({
   },
   messageText: {
     color: '#fff',
+  },
+  otherMessageText: {
+    color: '#000',
   },
   inputContainer: {
     flexDirection: 'row',

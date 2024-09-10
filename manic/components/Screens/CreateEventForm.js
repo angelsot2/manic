@@ -1,100 +1,100 @@
-import React, { useState, useF } from 'react';
-import { View, StyleSheet, ScrollView, Text, TouchableOpacity, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { TextInput, Button, RadioButton } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 
-import {generateClient} from 'aws-amplify/api';
-import {createEvent} from '../../src/graphql/mutations';
-import {listEvents} from '../../src/graphql/queries';
-import {Amplify} from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+import { createEvent } from '../../src/graphql/mutations';
+import { listEvents } from '../../src/graphql/queries';
+import { Amplify } from 'aws-amplify';
 import amplifyconfig from '../../src/amplifyconfiguration.json';
 Amplify.configure(amplifyconfig);
 const client = generateClient();
 
-
 const DurationCheckbox = ({ checked, onChange }) => {
   return (
-    <Pressable
+    <TouchableOpacity
       style={[styles.checkboxBase, checked && styles.checkboxChecked]}
       onPress={onChange}>
       {checked && <Ionicons name="checkmark" size={24} color="white" />}
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
+const CreateCalendarEventForm = ({ route, onCancel }) => {
+  passedDay = route.params.selectedDate;
+  const initialStartDate = passedDay ? new Date(`${passedDay}T00:00:00`) : new Date();
 
+  console.log(initialStartDate);
 
-const CreateCalendarEventForm = ({ onCancel}) => {
   const [title, setTitle] = useState('');
   const [type, setType] = useState('event');
-  const [startDate, setStartDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [startDate, setStartDate] = useState(initialStartDate);
+  const [endDate, setEndDate] = useState(new Date());
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
+  const [eventCalendarId, setCalendarId] = useState('');
   const [isDurationVisible, setIsDurationVisible] = useState(false);
 
-  initialState = {duration: '', notes:'', startDate: '', title:'', type:''};
-  const [formState, setFormState] = useState(initialState);
-  const [events, setEvent] = useState([]);
 
-  const handleDateChange = (event, selectedDate) => {
-    setShowDatePicker(false);
+  const handleStartDateChange = (event, selectedDate) => {
+    setShowStartDatePicker(false);
     if (selectedDate) {
       const offset = selectedDate.getTimezoneOffset() * 60000;
       setStartDate(new Date(selectedDate.getTime() - offset));
     }
   };
-  
-  async function handleSubmit () {
-    formState.duration = duration;
-    formState.notes = notes;
-    formState.startDate = startDate;
-    formState.title = title;
-    formState.type = type;
-    try {
-      if (!formState.startDate ||
-          !formState.title ||
-          !formState.type) return;
-      const event = {...formState};
-      setEvent([...events, event]);
-      console.log("event: ", event)
-      setFormState(formState);
 
-      await client.graphql({
-        query: createEvent,
-        variables: {
-          input: event
-        }
-      });
-    } catch(err) {
-      console.log('Error Creating Event:', err);
+  const handleEndDateChange = (event, selectedDate) => {
+    setShowEndDatePicker(false);
+    if (selectedDate) {
+      const offset = selectedDate.getTimezoneOffset() * 60000;
+      setEndDate(new Date(selectedDate.getTime() - offset));
     }
-    console.log('--------------------')
-    resetForm();
+  };
+
+  const handleTypeChange = (value) => {
+    const selectedType = value === 0 ? 'event' : 'appointment';
+    setType(selectedType);
   };
 
 
-  async function getEvents() {
+  const handleSubmit = async () => {
     try {
-      const eventData = await client.graphql({
-        query: listEvents
+      const event = {
+        title,
+        type,
+        startDate,
+        endDate,
+        duration,
+        notes,
+        eventCalendarId,
+      };
+
+      await client.graphql({
+        query: createEvent,
+        variables: { input: event },
       });
-      const events = eventData.data.listEvents.items;
-      setEvent(events);
-      console.log(events)
-    } catch(err) {
-      console.log('error fetching todos');
+
+      resetForm();
+    } catch (err) {
+      console.log('Error Creating Event:', err);
     }
-  }
+  };
 
   const resetForm = () => {
     setTitle('');
     setType('event');
     setStartDate(new Date());
-    setDuration('0');
+    setEndDate(new Date());
+    setDuration('');
     setNotes('');
+    setIsDurationVisible(false);
   };
 
   return (
@@ -107,19 +107,15 @@ const CreateCalendarEventForm = ({ onCancel}) => {
       />
 
       <Text style={styles.label}>Type</Text>
-      <RadioButton.Group onValueChange={newValue => setType(newValue)} value={type}>
-        <View style={styles.radioContainer}>
-          <RadioButton value="event"/>
-          <Text>Event</Text>
-        </View>
-        <View style={styles.radioContainer}>
-          <RadioButton value="appointment" />
-          <Text>Appointment</Text>
-        </View>
-      </RadioButton.Group>
+      <SegmentedControl
+        values={['Event', 'Appointment']}
+        selectedIndex={type === 'event' ? 0 : 1}
+        onChange={(event) => handleTypeChange(event.nativeEvent.selectedSegmentIndex)}
+        tintColor="purple"
+      />
 
       <Text style={styles.label}>Start Date</Text>
-      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+      <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
         <View pointerEvents="none">
           <TextInput
             label="Start Date"
@@ -129,24 +125,43 @@ const CreateCalendarEventForm = ({ onCancel}) => {
           />
         </View>
       </TouchableOpacity>
-      {showDatePicker && (
+      {showStartDatePicker && (
         <DateTimePicker
           value={startDate}
           mode="date"
           display="default"
-          onChange={handleDateChange}
+          onChange={handleStartDateChange}
+        />
+      )}
+
+      <Text style={styles.label}>End Date</Text>
+      <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
+        <View pointerEvents="none">
+          <TextInput
+            label="End Date"
+            value={startDate.toDateString()}
+            style={styles.input}
+            editable={false}
+          />
+        </View>
+      </TouchableOpacity>
+      {showEndDatePicker && (
+        <DateTimePicker
+          value={endDate}
+          mode="date"
+          display="default"
+          onChange={handleEndDateChange}
         />
       )}
 
       <Text style={styles.label}>Duration</Text>
-      <DurationCheckbox checked={isDurationVisible} onChange={() => setIsDurationVisible(!isDurationVisible)} />
+      <DurationCheckbox style={styles.checkBox}checked={isDurationVisible} onChange={() => setIsDurationVisible(!isDurationVisible)} />
       {isDurationVisible && (
         <Picker
           selectedValue={duration}
           onValueChange={itemValue => setDuration(itemValue)}
           style={styles.input}
         >
-
           <Picker.Item label="15 minutes" value="15" />
           <Picker.Item label="30 minutes" value="30" />
           <Picker.Item label="45 minutes" value="45" />
@@ -173,11 +188,6 @@ const CreateCalendarEventForm = ({ onCancel}) => {
       <Button style={styles.input} mode="contained" onPress={onCancel}>
         Cancel
       </Button>
-
-      <Button style={styles.input} mode="contained" onPress={getEvents}>
-        Get All Events
-      </Button>
-
     </ScrollView>
   );
 };
@@ -208,7 +218,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'purple',
     backgroundColor: 'transparent',
+    
   },
+  checkBox: {
+    paddingBottom: 50,
+  },  
   checkboxChecked: {
     backgroundColor: 'purple',
   },

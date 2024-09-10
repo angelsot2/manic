@@ -2,12 +2,13 @@
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
-type Calendar @model {
+type Calendar @model{
   id: ID! 
   name: String!
   events: [Event] @hasMany(indexName: "byCalendar", fields: ["id"])
   owner: User @belongsTo(fields: ["ownerId"])
   ownerId: ID @index(name: "byOwner", sortKeyFields: ["id"])
+  isPrivate: Boolean!
   createdAt: AWSDateTime
   updatedAt: AWSDateTime
 }
@@ -15,32 +16,70 @@ type Calendar @model {
 type Event @model {
   id: ID!
   title: String!
-  startDate: AWSDateTime!
   type: String!
+  startDate: AWSDateTime!
+  endDate: AWSDateTime!
   duration: Int!
   notes: String
-  calendar: Calendar @belongsTo(fields: ["calendarId"])
   calendarId: ID! @index(name: "byCalendar", sortKeyFields: ["id"])
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
+}
+
+type Friendship @model {
+  id: ID!
+  requesterId: ID! @index(name: "byRequester")
+  requesteeId: ID! @index(name: "byRequestee")
+  status: FriendshipStatus!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  requester: User @belongsTo(fields: ["requesterId"])
+  requestee: User @belongsTo(fields: ["requesteeId"])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  BLOCKED
+}
+
+type Post @model {
+  id: ID!
+  desiredPosition: String!
+  location: String!
+  date: AWSDateTime!
+  duration: String!
+  description: String!
+  ownerId: ID! @index(name: "bySourceUser", sortKeyFields: ["id"])
+  viewLevel: String!
 }
 
 type User @model {
   id: ID!
   name: String!
   phoneNumber: String
-  email: String!
-  friends: [User]
+  email: String
+  friends: [Friendship] @hasMany(indexName: "byRequester", fields: ["id"])
+  friendRequests: [Friendship] @hasMany(indexName: "byRequestee", fields: ["id"])
   posts: [Post] @hasMany(indexName: "bySourceUser", fields: ["id"])
   calendars: [Calendar] @hasMany(indexName: "byOwner", fields: ["id"])
+  conversations: [Conversation] @manyToMany(relationName: "UserConversations")
 }
 
-type Post @model {
+type Conversation @model {
   id: ID!
-  name: String!
-  location: String!
-  duration: Int!
-  sourceUserId: ID! @index(name: "bySourceUser", sortKeyFields: ["id"])
-  sourceUser: User @belongsTo(fields: ["sourceUserId"])
-  viewLevel: Int!
+  participants: [User] @manyToMany(relationName: "UserConversations")
+  messages: [Message] @hasMany(indexName: "byConversation", fields: ["id"])
+  lastMessageAt: AWSDateTime
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+type Message @model {
+  id: ID!
+  content: String!
+  senderId: ID! @index(name: "bySender")
+  conversationId: ID! @index(name: "byConversation", sortKeyFields: ["createdAt"])
+  createdAt: AWSDateTime
 }

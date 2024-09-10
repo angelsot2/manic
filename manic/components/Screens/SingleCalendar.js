@@ -1,42 +1,30 @@
 /* This file will include all code to view a calendar as well as 
 edit its contents*/
 import { Calendar } from 'react-native-calendars';
-import { View, Text, StyleSheet, Switch, Pressable} from 'react-native';
-import {Button, TextInput} from 'react-native-paper';
+import { View, Text, StyleSheet} from 'react-native';
+import {Button, TextInput, Switch} from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import { updateCalendar } from '../../src/graphql/mutations';
+import { getCalendar } from '../../src/graphql/queries';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
 
 
+import {generateClient} from 'aws-amplify/api';
+import {Amplify} from 'aws-amplify';
+import amplifyconfig from '../../src/amplifyconfiguration.json';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+Amplify.configure(amplifyconfig);
+const client = generateClient();
 
-const VisibilityToggle = () => {
-    const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-    return(
-        <View style={styles.switchContainer}>
-            <Text style={styles.title}>{"Calendar Visibility"}</Text>
-            <View style={styles.switchTextContianter}>
-                <Text style={styles.textSwitch}>
-                    {isEnabled ? "Calendar is Private" : "Calendar is Public"}
-                </Text>
-                <Switch
-                    trackColor={{false: "#767577", true: "#81b0ff" }}
-                    thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleSwitch}
-                    value={isEnabled}
-                />
-            </View>
-        </View>
-    )
-};
 
-const CreateNewEventButton = ({navigation}) => {
+const CreateNewEventButton = ({navigation, calendarId}) => {
     return (
       <View style={styles.buttonContainer}>
         <Button 
           title="Create New Event"
           mode="contained"
-          onPress={() => navigation.navigate('CreateCalendarEvent')}
+          onPress={() => navigation.navigate('CreateCalendarEvent', {calendarId})}
           style={styles.button}
           labelStyle={styles.buttonText}
         >
@@ -46,38 +34,129 @@ const CreateNewEventButton = ({navigation}) => {
     );
 }; 
 
-const ChangeCalendarTitle = () => {
-    const [calendarTitle, setCalendarTitle] = useState('');
-    return (
-        <TextInput
-            label="Calendar Name"
+const UpdateCalendarDetails = ({isPrivate, calendarId, initialTitle}) => {
+  const [calendarTitle, setCalendarTitle] = useState('');
+  const [isCalendarPrivate, setIsCalendarPrivate] = useState();
+  const [isButtonEnabled, setIsButtonEnabled] = useState(true);
 
+  useEffect(() => {
+    setCalendarTitle(initialTitle);
+    setIsCalendarPrivate(isPrivate);    
+  }, [initialTitle, isPrivate])
+
+  const HandleUpdateCalendar = async () => {
+    console.log(calendarId, calendarTitle, isCalendarPrivate)
+    try {
+      const calendarData = await client.graphql({
+        query: updateCalendar,
+        variables:{input:{id: calendarId, name: calendarTitle, isPrivate: isCalendarPrivate}}
+      }) 
+    } catch(error) {
+      console.log('Error updating calendar: ', error);
+    }
+  };
+
+  return (
+
+    <View>
+      <View style={styles.switchContainer}>
+        <View style={styles.switchTextContianter}>
+          <Text style={styles.textSwitch}>
+              {isPrivate ? "Calendar is Private" : "Calendar is Public"}
+          </Text>
+          <Switch
+              onValueChange={() => setIsCalendarPrivate(!isPrivate)}
+              value={isCalendarPrivate}
+          />
+        </View>
+      </View>
+
+
+      <View style={styles.titleInputContainer}>
+        <TextInput
+          label="Calendar Name"
+          value={calendarTitle}
+          onChangeText={text => setCalendarTitle(text)}
+          style={styles.titleInput}
         />
-    );
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <Button 
+          title="Update Calendar Details"
+          mode="contained"
+          onPress={() => HandleUpdateCalendar()}
+          disabled={!isButtonEnabled}
+          style={[styles.button, { backgroundColor: isButtonEnabled ? 'purple' : 'grey' }]}
+          labelStyle={styles.buttonText}
+        >
+        Update Calendar Details
+        </Button>
+      </View>
+    </View>
+  );
 };
 
 
-const ViewSingleCalendar = ({onCancel}) => {
+const ViewSingleCalendar = ({route}) => {
+  const {calendarId} = route.params;
   const navigation = useNavigation();
+  const [calendarName, setCalendarName] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
 
-  const renderDay = ({date, state}) => {
+
+  useEffect(() => {
+    const fetchCalendarDetails = async() => {
+      try {
+        const calendarData = await client.graphql({
+          query: getCalendar,
+          variables:{id: calendarId},
+        }); 
+        setCalendarName(calendarData.data.getCalendar.name);
+        setIsPrivate(calendarData.data.getCalendar.isPrivate);
+        //navigation.setOptions({title: calendarData.data.getCalendar.name}) 
+        //^^^ this sets the calendarStack title in the header. NOT in the tab navigator 
+
+      }catch (error) {
+        console.log('Error fetching calendar details: ', error);
+      }
+    };
+    fetchCalendarDetails();
+  }, [calendarId, navigation]);
+
+
+  const RenderDay = ({date, state}) => {
     return (
-      <View style={styles.dayContainer}>
-        <Text style={[styles.dayText, state === 'disabled' && styles.disabledText]}>
-          {date.day}
-        </Text>
-      </View>
+        <TouchableOpacity 
+          style={styles.dayContainer}
+          onPress= {() => {
+            navigation.navigate('CreateCalendarEvent', {
+              calendarId, 
+              selectedDate: date.dateString,
+            });
+          }}  
+        >
+          <Text style={[styles.dayText, state === 'disabled' && styles.disabledText]}>
+            {date.day}
+          </Text>
+        </TouchableOpacity>
     );
   };
 
 
   return (
     <View style={styles.container}>
-        <VisibilityToggle/>
+        <UpdateCalendarDetails
+          isPrivate={isPrivate}
+          calendarId={calendarId}
+          initialTitle={calendarName}
+          onTitleChange={setCalendarName}
+        />
+
         <Calendar
         current={Date()} minDate={'2022-05-10'} maxDate={'2024-12-31'}
         onDayPress={(day) => {
-            navigation.navigate('CreateCalendarEvent')
+            navigation.navigate('CreateCalendarEvent', {calendarId, day});
         }}
         monthFormat={'MMMM yyyy'}
         onMonthChange={(month) => {
@@ -94,16 +173,14 @@ const ViewSingleCalendar = ({onCancel}) => {
         disableAllTouchEventsForDisabledDays={true}
         // Replace default month and year title with custom one. the function receive a date as parameter
         renderHeader={(date) => {
-            /*Return JSX*/
             return <Text>{date.toString()}</Text>;
         }}
         enableSwipeMonths={true}
-        dayComponent={renderDay}
+        dayComponent={RenderDay}
         />
-        <CreateNewEventButton navigation={navigation}/>
-
+        <CreateNewEventButton navigation={navigation} calendarId={calendarId}/>
     </View>
-  )
+  );
 };
 
 const styles = StyleSheet.create({
@@ -128,14 +205,30 @@ const styles = StyleSheet.create({
       disabledText: {
         color: '#cccccc',
       },
+      titleInputContainer: {
+        flexDirection: 'row',
+        margin: 20,
+        alignItems: 'center',
+        width: 250,
+        marginBottom: 0,
+      },
+      titleInput: {
+        flex: 1,
+        marginRight: 10,
+      },
+      updateButton: {
+        justifyContent: 'center',
+        backgroundColor: 'purple',
+      },
       title: {
         marginBottom: 10,
         fontSize: 15, 
         fontWeight:'bold',
       },
       switchContainer: {
+        marginTop: 10,
         alignItems: 'center',
-        justifyContent: 'center', 
+        justifyContent: 'center',
       },
       switchTextContianter: {
         flexDirection: 'row',
@@ -166,10 +259,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
         backgroundColor: 'purple',
       },
-      buttonText: {
-        color:'#fff',
-        fontSize: 15,
-    },
 });
 
 export default ViewSingleCalendar;

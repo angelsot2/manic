@@ -23,6 +23,7 @@ export const createCalendar = /* GraphQL */ `
         __typename
       }
       ownerId
+      isPrivate
       createdAt
       updatedAt
       __typename
@@ -51,6 +52,7 @@ export const updateCalendar = /* GraphQL */ `
         __typename
       }
       ownerId
+      isPrivate
       createdAt
       updatedAt
       __typename
@@ -79,6 +81,7 @@ export const deleteCalendar = /* GraphQL */ `
         __typename
       }
       ownerId
+      isPrivate
       createdAt
       updatedAt
       __typename
@@ -93,18 +96,11 @@ export const createEvent = /* GraphQL */ `
     createEvent(input: $input, condition: $condition) {
       id
       title
-      startDate
       type
+      startDate
+      endDate
       duration
       notes
-      calendar {
-        id
-        name
-        ownerId
-        createdAt
-        updatedAt
-        __typename
-      }
       calendarId
       createdAt
       updatedAt
@@ -120,18 +116,11 @@ export const updateEvent = /* GraphQL */ `
     updateEvent(input: $input, condition: $condition) {
       id
       title
-      startDate
       type
+      startDate
+      endDate
       duration
       notes
-      calendar {
-        id
-        name
-        ownerId
-        createdAt
-        updatedAt
-        __typename
-      }
       calendarId
       createdAt
       updatedAt
@@ -147,19 +136,174 @@ export const deleteEvent = /* GraphQL */ `
     deleteEvent(input: $input, condition: $condition) {
       id
       title
-      startDate
       type
+      startDate
+      endDate
       duration
       notes
-      calendar {
+      calendarId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const createFriendship = /* GraphQL */ `
+  mutation CreateFriendship(
+    $input: CreateFriendshipInput!
+    $condition: ModelFriendshipConditionInput
+  ) {
+    createFriendship(input: $input, condition: $condition) {
+      id
+      requesterId
+      requesteeId
+      status
+      createdAt
+      updatedAt
+      requester {
         id
         name
-        ownerId
+        phoneNumber
+        email
         createdAt
         updatedAt
         __typename
       }
-      calendarId
+      requestee {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+export const updateFriendship = /* GraphQL */ `
+  mutation UpdateFriendship(
+    $input: UpdateFriendshipInput!
+    $condition: ModelFriendshipConditionInput
+  ) {
+    updateFriendship(input: $input, condition: $condition) {
+      id
+      requesterId
+      requesteeId
+      status
+      createdAt
+      updatedAt
+      requester {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      requestee {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+export const deleteFriendship = /* GraphQL */ `
+  mutation DeleteFriendship(
+    $input: DeleteFriendshipInput!
+    $condition: ModelFriendshipConditionInput
+  ) {
+    deleteFriendship(input: $input, condition: $condition) {
+      id
+      requesterId
+      requesteeId
+      status
+      createdAt
+      updatedAt
+      requester {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      requestee {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+export const createPost = /* GraphQL */ `
+  mutation CreatePost(
+    $input: CreatePostInput!
+    $condition: ModelPostConditionInput
+  ) {
+    createPost(input: $input, condition: $condition) {
+      id
+      desiredPosition
+      location
+      date
+      duration
+      description
+      ownerId
+      viewLevel
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updatePost = /* GraphQL */ `
+  mutation UpdatePost(
+    $input: UpdatePostInput!
+    $condition: ModelPostConditionInput
+  ) {
+    updatePost(input: $input, condition: $condition) {
+      id
+      desiredPosition
+      location
+      date
+      duration
+      description
+      ownerId
+      viewLevel
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deletePost = /* GraphQL */ `
+  mutation DeletePost(
+    $input: DeletePostInput!
+    $condition: ModelPostConditionInput
+  ) {
+    deletePost(input: $input, condition: $condition) {
+      id
+      desiredPosition
+      location
+      date
+      duration
+      description
+      ownerId
+      viewLevel
       createdAt
       updatedAt
       __typename
@@ -177,12 +321,11 @@ export const createUser = /* GraphQL */ `
       phoneNumber
       email
       friends {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
+        nextToken
+        __typename
+      }
+      friendRequests {
+        nextToken
         __typename
       }
       posts {
@@ -190,6 +333,10 @@ export const createUser = /* GraphQL */ `
         __typename
       }
       calendars {
+        nextToken
+        __typename
+      }
+      conversations {
         nextToken
         __typename
       }
@@ -210,12 +357,11 @@ export const updateUser = /* GraphQL */ `
       phoneNumber
       email
       friends {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
+        nextToken
+        __typename
+      }
+      friendRequests {
+        nextToken
         __typename
       }
       posts {
@@ -223,6 +369,10 @@ export const updateUser = /* GraphQL */ `
         __typename
       }
       calendars {
+        nextToken
+        __typename
+      }
+      conversations {
         nextToken
         __typename
       }
@@ -243,12 +393,11 @@ export const deleteUser = /* GraphQL */ `
       phoneNumber
       email
       friends {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
+        nextToken
+        __typename
+      }
+      friendRequests {
+        nextToken
         __typename
       }
       posts {
@@ -259,24 +408,140 @@ export const deleteUser = /* GraphQL */ `
         nextToken
         __typename
       }
+      conversations {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const createPost = /* GraphQL */ `
-  mutation CreatePost(
-    $input: CreatePostInput!
-    $condition: ModelPostConditionInput
+export const createConversation = /* GraphQL */ `
+  mutation CreateConversation(
+    $input: CreateConversationInput!
+    $condition: ModelConversationConditionInput
   ) {
-    createPost(input: $input, condition: $condition) {
+    createConversation(input: $input, condition: $condition) {
       id
-      name
-      location
-      duration
-      sourceUserId
-      sourceUser {
+      participants {
+        nextToken
+        __typename
+      }
+      messages {
+        nextToken
+        __typename
+      }
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateConversation = /* GraphQL */ `
+  mutation UpdateConversation(
+    $input: UpdateConversationInput!
+    $condition: ModelConversationConditionInput
+  ) {
+    updateConversation(input: $input, condition: $condition) {
+      id
+      participants {
+        nextToken
+        __typename
+      }
+      messages {
+        nextToken
+        __typename
+      }
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteConversation = /* GraphQL */ `
+  mutation DeleteConversation(
+    $input: DeleteConversationInput!
+    $condition: ModelConversationConditionInput
+  ) {
+    deleteConversation(input: $input, condition: $condition) {
+      id
+      participants {
+        nextToken
+        __typename
+      }
+      messages {
+        nextToken
+        __typename
+      }
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const createMessage = /* GraphQL */ `
+  mutation CreateMessage(
+    $input: CreateMessageInput!
+    $condition: ModelMessageConditionInput
+  ) {
+    createMessage(input: $input, condition: $condition) {
+      id
+      content
+      senderId
+      conversationId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateMessage = /* GraphQL */ `
+  mutation UpdateMessage(
+    $input: UpdateMessageInput!
+    $condition: ModelMessageConditionInput
+  ) {
+    updateMessage(input: $input, condition: $condition) {
+      id
+      content
+      senderId
+      conversationId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteMessage = /* GraphQL */ `
+  mutation DeleteMessage(
+    $input: DeleteMessageInput!
+    $condition: ModelMessageConditionInput
+  ) {
+    deleteMessage(input: $input, condition: $condition) {
+      id
+      content
+      senderId
+      conversationId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const createUserConversations = /* GraphQL */ `
+  mutation CreateUserConversations(
+    $input: CreateUserConversationsInput!
+    $condition: ModelUserConversationsConditionInput
+  ) {
+    createUserConversations(input: $input, condition: $condition) {
+      id
+      userId
+      conversationId
+      user {
         id
         name
         phoneNumber
@@ -285,25 +550,29 @@ export const createPost = /* GraphQL */ `
         updatedAt
         __typename
       }
-      viewLevel
+      conversation {
+        id
+        lastMessageAt
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const updatePost = /* GraphQL */ `
-  mutation UpdatePost(
-    $input: UpdatePostInput!
-    $condition: ModelPostConditionInput
+export const updateUserConversations = /* GraphQL */ `
+  mutation UpdateUserConversations(
+    $input: UpdateUserConversationsInput!
+    $condition: ModelUserConversationsConditionInput
   ) {
-    updatePost(input: $input, condition: $condition) {
+    updateUserConversations(input: $input, condition: $condition) {
       id
-      name
-      location
-      duration
-      sourceUserId
-      sourceUser {
+      userId
+      conversationId
+      user {
         id
         name
         phoneNumber
@@ -312,25 +581,29 @@ export const updatePost = /* GraphQL */ `
         updatedAt
         __typename
       }
-      viewLevel
+      conversation {
+        id
+        lastMessageAt
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const deletePost = /* GraphQL */ `
-  mutation DeletePost(
-    $input: DeletePostInput!
-    $condition: ModelPostConditionInput
+export const deleteUserConversations = /* GraphQL */ `
+  mutation DeleteUserConversations(
+    $input: DeleteUserConversationsInput!
+    $condition: ModelUserConversationsConditionInput
   ) {
-    deletePost(input: $input, condition: $condition) {
+    deleteUserConversations(input: $input, condition: $condition) {
       id
-      name
-      location
-      duration
-      sourceUserId
-      sourceUser {
+      userId
+      conversationId
+      user {
         id
         name
         phoneNumber
@@ -339,7 +612,13 @@ export const deletePost = /* GraphQL */ `
         updatedAt
         __typename
       }
-      viewLevel
+      conversation {
+        id
+        lastMessageAt
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename

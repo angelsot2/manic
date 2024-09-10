@@ -20,6 +20,7 @@ export const onCreateCalendar = /* GraphQL */ `
         __typename
       }
       ownerId
+      isPrivate
       createdAt
       updatedAt
       __typename
@@ -45,6 +46,7 @@ export const onUpdateCalendar = /* GraphQL */ `
         __typename
       }
       ownerId
+      isPrivate
       createdAt
       updatedAt
       __typename
@@ -70,6 +72,7 @@ export const onDeleteCalendar = /* GraphQL */ `
         __typename
       }
       ownerId
+      isPrivate
       createdAt
       updatedAt
       __typename
@@ -81,18 +84,11 @@ export const onCreateEvent = /* GraphQL */ `
     onCreateEvent(filter: $filter) {
       id
       title
-      startDate
       type
+      startDate
+      endDate
       duration
       notes
-      calendar {
-        id
-        name
-        ownerId
-        createdAt
-        updatedAt
-        __typename
-      }
       calendarId
       createdAt
       updatedAt
@@ -105,18 +101,11 @@ export const onUpdateEvent = /* GraphQL */ `
     onUpdateEvent(filter: $filter) {
       id
       title
-      startDate
       type
+      startDate
+      endDate
       duration
       notes
-      calendar {
-        id
-        name
-        ownerId
-        createdAt
-        updatedAt
-        __typename
-      }
       calendarId
       createdAt
       updatedAt
@@ -129,19 +118,162 @@ export const onDeleteEvent = /* GraphQL */ `
     onDeleteEvent(filter: $filter) {
       id
       title
-      startDate
       type
+      startDate
+      endDate
       duration
       notes
-      calendar {
+      calendarId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateFriendship = /* GraphQL */ `
+  subscription OnCreateFriendship(
+    $filter: ModelSubscriptionFriendshipFilterInput
+  ) {
+    onCreateFriendship(filter: $filter) {
+      id
+      requesterId
+      requesteeId
+      status
+      createdAt
+      updatedAt
+      requester {
         id
         name
-        ownerId
+        phoneNumber
+        email
         createdAt
         updatedAt
         __typename
       }
-      calendarId
+      requestee {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+export const onUpdateFriendship = /* GraphQL */ `
+  subscription OnUpdateFriendship(
+    $filter: ModelSubscriptionFriendshipFilterInput
+  ) {
+    onUpdateFriendship(filter: $filter) {
+      id
+      requesterId
+      requesteeId
+      status
+      createdAt
+      updatedAt
+      requester {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      requestee {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+export const onDeleteFriendship = /* GraphQL */ `
+  subscription OnDeleteFriendship(
+    $filter: ModelSubscriptionFriendshipFilterInput
+  ) {
+    onDeleteFriendship(filter: $filter) {
+      id
+      requesterId
+      requesteeId
+      status
+      createdAt
+      updatedAt
+      requester {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      requestee {
+        id
+        name
+        phoneNumber
+        email
+        createdAt
+        updatedAt
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+export const onCreatePost = /* GraphQL */ `
+  subscription OnCreatePost($filter: ModelSubscriptionPostFilterInput) {
+    onCreatePost(filter: $filter) {
+      id
+      desiredPosition
+      location
+      date
+      duration
+      description
+      ownerId
+      viewLevel
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdatePost = /* GraphQL */ `
+  subscription OnUpdatePost($filter: ModelSubscriptionPostFilterInput) {
+    onUpdatePost(filter: $filter) {
+      id
+      desiredPosition
+      location
+      date
+      duration
+      description
+      ownerId
+      viewLevel
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeletePost = /* GraphQL */ `
+  subscription OnDeletePost($filter: ModelSubscriptionPostFilterInput) {
+    onDeletePost(filter: $filter) {
+      id
+      desiredPosition
+      location
+      date
+      duration
+      description
+      ownerId
+      viewLevel
       createdAt
       updatedAt
       __typename
@@ -156,12 +288,11 @@ export const onCreateUser = /* GraphQL */ `
       phoneNumber
       email
       friends {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
+        nextToken
+        __typename
+      }
+      friendRequests {
+        nextToken
         __typename
       }
       posts {
@@ -169,6 +300,10 @@ export const onCreateUser = /* GraphQL */ `
         __typename
       }
       calendars {
+        nextToken
+        __typename
+      }
+      conversations {
         nextToken
         __typename
       }
@@ -186,12 +321,11 @@ export const onUpdateUser = /* GraphQL */ `
       phoneNumber
       email
       friends {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
+        nextToken
+        __typename
+      }
+      friendRequests {
+        nextToken
         __typename
       }
       posts {
@@ -199,6 +333,10 @@ export const onUpdateUser = /* GraphQL */ `
         __typename
       }
       calendars {
+        nextToken
+        __typename
+      }
+      conversations {
         nextToken
         __typename
       }
@@ -216,12 +354,11 @@ export const onDeleteUser = /* GraphQL */ `
       phoneNumber
       email
       friends {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
+        nextToken
+        __typename
+      }
+      friendRequests {
+        nextToken
         __typename
       }
       posts {
@@ -232,21 +369,127 @@ export const onDeleteUser = /* GraphQL */ `
         nextToken
         __typename
       }
+      conversations {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onCreatePost = /* GraphQL */ `
-  subscription OnCreatePost($filter: ModelSubscriptionPostFilterInput) {
-    onCreatePost(filter: $filter) {
+export const onCreateConversation = /* GraphQL */ `
+  subscription OnCreateConversation(
+    $filter: ModelSubscriptionConversationFilterInput
+  ) {
+    onCreateConversation(filter: $filter) {
       id
-      name
-      location
-      duration
-      sourceUserId
-      sourceUser {
+      participants {
+        nextToken
+        __typename
+      }
+      messages {
+        nextToken
+        __typename
+      }
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateConversation = /* GraphQL */ `
+  subscription OnUpdateConversation(
+    $filter: ModelSubscriptionConversationFilterInput
+  ) {
+    onUpdateConversation(filter: $filter) {
+      id
+      participants {
+        nextToken
+        __typename
+      }
+      messages {
+        nextToken
+        __typename
+      }
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteConversation = /* GraphQL */ `
+  subscription OnDeleteConversation(
+    $filter: ModelSubscriptionConversationFilterInput
+  ) {
+    onDeleteConversation(filter: $filter) {
+      id
+      participants {
+        nextToken
+        __typename
+      }
+      messages {
+        nextToken
+        __typename
+      }
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateMessage = /* GraphQL */ `
+  subscription OnCreateMessage($filter: ModelSubscriptionMessageFilterInput) {
+    onCreateMessage(filter: $filter) {
+      id
+      content
+      senderId
+      conversationId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateMessage = /* GraphQL */ `
+  subscription OnUpdateMessage($filter: ModelSubscriptionMessageFilterInput) {
+    onUpdateMessage(filter: $filter) {
+      id
+      content
+      senderId
+      conversationId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteMessage = /* GraphQL */ `
+  subscription OnDeleteMessage($filter: ModelSubscriptionMessageFilterInput) {
+    onDeleteMessage(filter: $filter) {
+      id
+      content
+      senderId
+      conversationId
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateUserConversations = /* GraphQL */ `
+  subscription OnCreateUserConversations(
+    $filter: ModelSubscriptionUserConversationsFilterInput
+  ) {
+    onCreateUserConversations(filter: $filter) {
+      id
+      userId
+      conversationId
+      user {
         id
         name
         phoneNumber
@@ -255,22 +498,28 @@ export const onCreatePost = /* GraphQL */ `
         updatedAt
         __typename
       }
-      viewLevel
+      conversation {
+        id
+        lastMessageAt
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onUpdatePost = /* GraphQL */ `
-  subscription OnUpdatePost($filter: ModelSubscriptionPostFilterInput) {
-    onUpdatePost(filter: $filter) {
+export const onUpdateUserConversations = /* GraphQL */ `
+  subscription OnUpdateUserConversations(
+    $filter: ModelSubscriptionUserConversationsFilterInput
+  ) {
+    onUpdateUserConversations(filter: $filter) {
       id
-      name
-      location
-      duration
-      sourceUserId
-      sourceUser {
+      userId
+      conversationId
+      user {
         id
         name
         phoneNumber
@@ -279,22 +528,28 @@ export const onUpdatePost = /* GraphQL */ `
         updatedAt
         __typename
       }
-      viewLevel
+      conversation {
+        id
+        lastMessageAt
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onDeletePost = /* GraphQL */ `
-  subscription OnDeletePost($filter: ModelSubscriptionPostFilterInput) {
-    onDeletePost(filter: $filter) {
+export const onDeleteUserConversations = /* GraphQL */ `
+  subscription OnDeleteUserConversations(
+    $filter: ModelSubscriptionUserConversationsFilterInput
+  ) {
+    onDeleteUserConversations(filter: $filter) {
       id
-      name
-      location
-      duration
-      sourceUserId
-      sourceUser {
+      userId
+      conversationId
+      user {
         id
         name
         phoneNumber
@@ -303,7 +558,13 @@ export const onDeletePost = /* GraphQL */ `
         updatedAt
         __typename
       }
-      viewLevel
+      conversation {
+        id
+        lastMessageAt
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename
