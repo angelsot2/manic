@@ -141,24 +141,8 @@ export const onCreateFriendship = /* GraphQL */ `
       status
       createdAt
       updatedAt
-      requester {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      requestee {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
+      requester
+      requestee
       __typename
     }
   }
@@ -174,24 +158,8 @@ export const onUpdateFriendship = /* GraphQL */ `
       status
       createdAt
       updatedAt
-      requester {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      requestee {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
+      requester
+      requestee
       __typename
     }
   }
@@ -207,24 +175,8 @@ export const onDeleteFriendship = /* GraphQL */ `
       status
       createdAt
       updatedAt
-      requester {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      requestee {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
+      requester
+      requestee
       __typename
     }
   }
@@ -303,10 +255,6 @@ export const onCreateUser = /* GraphQL */ `
         nextToken
         __typename
       }
-      conversations {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -333,10 +281,6 @@ export const onUpdateUser = /* GraphQL */ `
         __typename
       }
       calendars {
-        nextToken
-        __typename
-      }
-      conversations {
         nextToken
         __typename
       }
@@ -369,10 +313,6 @@ export const onDeleteUser = /* GraphQL */ `
         nextToken
         __typename
       }
-      conversations {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -385,10 +325,7 @@ export const onCreateConversation = /* GraphQL */ `
   ) {
     onCreateConversation(filter: $filter) {
       id
-      participants {
-        nextToken
-        __typename
-      }
+      participants
       messages {
         nextToken
         __typename
@@ -406,10 +343,7 @@ export const onUpdateConversation = /* GraphQL */ `
   ) {
     onUpdateConversation(filter: $filter) {
       id
-      participants {
-        nextToken
-        __typename
-      }
+      participants
       messages {
         nextToken
         __typename
@@ -427,10 +361,7 @@ export const onDeleteConversation = /* GraphQL */ `
   ) {
     onDeleteConversation(filter: $filter) {
       id
-      participants {
-        nextToken
-        __typename
-      }
+      participants
       messages {
         nextToken
         __typename
@@ -475,96 +406,6 @@ export const onDeleteMessage = /* GraphQL */ `
       content
       senderId
       conversationId
-      createdAt
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const onCreateUserConversations = /* GraphQL */ `
-  subscription OnCreateUserConversations(
-    $filter: ModelSubscriptionUserConversationsFilterInput
-  ) {
-    onCreateUserConversations(filter: $filter) {
-      id
-      userId
-      conversationId
-      user {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      conversation {
-        id
-        lastMessageAt
-        createdAt
-        updatedAt
-        __typename
-      }
-      createdAt
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const onUpdateUserConversations = /* GraphQL */ `
-  subscription OnUpdateUserConversations(
-    $filter: ModelSubscriptionUserConversationsFilterInput
-  ) {
-    onUpdateUserConversations(filter: $filter) {
-      id
-      userId
-      conversationId
-      user {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      conversation {
-        id
-        lastMessageAt
-        createdAt
-        updatedAt
-        __typename
-      }
-      createdAt
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const onDeleteUserConversations = /* GraphQL */ `
-  subscription OnDeleteUserConversations(
-    $filter: ModelSubscriptionUserConversationsFilterInput
-  ) {
-    onDeleteUserConversations(filter: $filter) {
-      id
-      userId
-      conversationId
-      user {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      conversation {
-        id
-        lastMessageAt
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename

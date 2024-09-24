@@ -99,24 +99,8 @@ export const getFriendship = /* GraphQL */ `
       status
       createdAt
       updatedAt
-      requester {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      requestee {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
+      requester
+      requestee
       __typename
     }
   }
@@ -135,6 +119,8 @@ export const listFriendships = /* GraphQL */ `
         status
         createdAt
         updatedAt
+        requester
+        requestee
         __typename
       }
       nextToken
@@ -207,10 +193,6 @@ export const getUser = /* GraphQL */ `
         nextToken
         __typename
       }
-      conversations {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -242,10 +224,7 @@ export const getConversation = /* GraphQL */ `
   query GetConversation($id: ID!) {
     getConversation(id: $id) {
       id
-      participants {
-        nextToken
-        __typename
-      }
+      participants
       messages {
         nextToken
         __typename
@@ -266,6 +245,7 @@ export const listConversations = /* GraphQL */ `
     listConversations(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
+        participants
         lastMessageAt
         createdAt
         updatedAt
@@ -300,58 +280,6 @@ export const listMessages = /* GraphQL */ `
         id
         content
         senderId
-        conversationId
-        createdAt
-        updatedAt
-        __typename
-      }
-      nextToken
-      __typename
-    }
-  }
-`;
-export const getUserConversations = /* GraphQL */ `
-  query GetUserConversations($id: ID!) {
-    getUserConversations(id: $id) {
-      id
-      userId
-      conversationId
-      user {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      conversation {
-        id
-        lastMessageAt
-        createdAt
-        updatedAt
-        __typename
-      }
-      createdAt
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const listUserConversations = /* GraphQL */ `
-  query ListUserConversations(
-    $filter: ModelUserConversationsFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listUserConversations(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        userId
         conversationId
         createdAt
         updatedAt
@@ -450,6 +378,8 @@ export const friendshipsByRequesterId = /* GraphQL */ `
         status
         createdAt
         updatedAt
+        requester
+        requestee
         __typename
       }
       nextToken
@@ -479,6 +409,8 @@ export const friendshipsByRequesteeId = /* GraphQL */ `
         status
         createdAt
         updatedAt
+        requester
+        requestee
         __typename
       }
       nextToken
@@ -550,18 +482,18 @@ export const messagesBySenderId = /* GraphQL */ `
     }
   }
 `;
-export const messagesByConversationIdAndCreatedAt = /* GraphQL */ `
-  query MessagesByConversationIdAndCreatedAt(
+export const messagesByConversationIdAndId = /* GraphQL */ `
+  query MessagesByConversationIdAndId(
     $conversationId: ID!
-    $createdAt: ModelStringKeyConditionInput
+    $id: ModelIDKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelMessageFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    messagesByConversationIdAndCreatedAt(
+    messagesByConversationIdAndId(
       conversationId: $conversationId
-      createdAt: $createdAt
+      id: $id
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
@@ -581,16 +513,18 @@ export const messagesByConversationIdAndCreatedAt = /* GraphQL */ `
     }
   }
 `;
-export const userConversationsByUserId = /* GraphQL */ `
-  query UserConversationsByUserId(
-    $userId: ID!
+export const messagesByCreatedAtAndId = /* GraphQL */ `
+  query MessagesByCreatedAtAndId(
+    $createdAt: AWSDateTime!
+    $id: ModelIDKeyConditionInput
     $sortDirection: ModelSortDirection
-    $filter: ModelUserConversationsFilterInput
+    $filter: ModelMessageFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    userConversationsByUserId(
-      userId: $userId
+    messagesByCreatedAtAndId(
+      createdAt: $createdAt
+      id: $id
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
@@ -598,35 +532,8 @@ export const userConversationsByUserId = /* GraphQL */ `
     ) {
       items {
         id
-        userId
-        conversationId
-        createdAt
-        updatedAt
-        __typename
-      }
-      nextToken
-      __typename
-    }
-  }
-`;
-export const userConversationsByConversationId = /* GraphQL */ `
-  query UserConversationsByConversationId(
-    $conversationId: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelUserConversationsFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    userConversationsByConversationId(
-      conversationId: $conversationId
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        userId
+        content
+        senderId
         conversationId
         createdAt
         updatedAt

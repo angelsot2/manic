@@ -21,7 +21,7 @@ const RenderPostTile = ({ item }) => {
     <View style={styles.postTile}>
       {/* Header Section with Title */}
       <View style={styles.postHeader}>
-        <Text style={styles.postTitle}>{item.desiredPosition}</Text>
+        <Text style={styles.postTitle}>{truncateText(item.desiredPosition,15)}</Text>
         <Text style={styles.postDate}>
           Posted on: {new Date(item.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
         </Text>

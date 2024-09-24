@@ -17,7 +17,8 @@ import AddCalendarModal from '../AddCalendarModal';
 import { Amplify } from 'aws-amplify';
 import amplifyconfig from '../../src/amplifyconfiguration.json';
 Amplify.configure(amplifyconfig);
-
+ 
+import { API } from 'aws-amplify';  // Ensure you're importing API from aws-amplify
 import { generateClient } from 'aws-amplify/api';
 const client = generateClient();
 
@@ -27,7 +28,11 @@ const ViewCalendars = () => {
   const [calendars, setCalendars] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
 
-  
+  useEffect(()=>{
+    fetchAllCalendars()
+  },[])
+
+
   console.log('Fetching all calendars...');
 
   const fetchAllCalendars = async () => {
@@ -35,6 +40,7 @@ const ViewCalendars = () => {
       const allCalendarData = await client.graphql({ query: calendarsByOwnerIdAndId, variables:{ownerId:user.userId} });
       const calendarsList = allCalendarData.data.calendarsByOwnerIdAndId.items;
       setCalendars(calendarsList);
+      console.log("CALENDARS ",calendarsList)
     } catch (error) {
       console.log('Error Fetching All Calendars: ', error);
     }
@@ -126,7 +132,7 @@ const ViewCalendars = () => {
       console.log('Calendar created successfully');
     } catch (error) {
       console.log('Error creating calendar: ', error);
-      setCalendars((prevCalendars) => prevCalednars.flter(calendar => calendar.id !== tempId))
+      setCalendars((prevCalendars) => prevCalendars.filter(calendar => calendar.id !== tempId))
     }
   }
 

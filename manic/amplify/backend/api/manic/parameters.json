@@ -1,5 +1,6 @@
 {
   "AppSyncApiName": "manic",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthModeLastUpdated": "2024-09-22T03:46:36.485Z"
 }

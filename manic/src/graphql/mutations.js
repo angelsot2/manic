@@ -160,24 +160,8 @@ export const createFriendship = /* GraphQL */ `
       status
       createdAt
       updatedAt
-      requester {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      requestee {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
+      requester
+      requestee
       __typename
     }
   }
@@ -194,24 +178,8 @@ export const updateFriendship = /* GraphQL */ `
       status
       createdAt
       updatedAt
-      requester {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      requestee {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
+      requester
+      requestee
       __typename
     }
   }
@@ -228,24 +196,8 @@ export const deleteFriendship = /* GraphQL */ `
       status
       createdAt
       updatedAt
-      requester {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      requestee {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
+      requester
+      requestee
       __typename
     }
   }
@@ -336,10 +288,6 @@ export const createUser = /* GraphQL */ `
         nextToken
         __typename
       }
-      conversations {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -369,10 +317,6 @@ export const updateUser = /* GraphQL */ `
         __typename
       }
       calendars {
-        nextToken
-        __typename
-      }
-      conversations {
         nextToken
         __typename
       }
@@ -408,10 +352,6 @@ export const deleteUser = /* GraphQL */ `
         nextToken
         __typename
       }
-      conversations {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -425,10 +365,7 @@ export const createConversation = /* GraphQL */ `
   ) {
     createConversation(input: $input, condition: $condition) {
       id
-      participants {
-        nextToken
-        __typename
-      }
+      participants
       messages {
         nextToken
         __typename
@@ -447,10 +384,7 @@ export const updateConversation = /* GraphQL */ `
   ) {
     updateConversation(input: $input, condition: $condition) {
       id
-      participants {
-        nextToken
-        __typename
-      }
+      participants
       messages {
         nextToken
         __typename
@@ -469,10 +403,7 @@ export const deleteConversation = /* GraphQL */ `
   ) {
     deleteConversation(input: $input, condition: $condition) {
       id
-      participants {
-        nextToken
-        __typename
-      }
+      participants
       messages {
         nextToken
         __typename
@@ -526,99 +457,6 @@ export const deleteMessage = /* GraphQL */ `
       content
       senderId
       conversationId
-      createdAt
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const createUserConversations = /* GraphQL */ `
-  mutation CreateUserConversations(
-    $input: CreateUserConversationsInput!
-    $condition: ModelUserConversationsConditionInput
-  ) {
-    createUserConversations(input: $input, condition: $condition) {
-      id
-      userId
-      conversationId
-      user {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      conversation {
-        id
-        lastMessageAt
-        createdAt
-        updatedAt
-        __typename
-      }
-      createdAt
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const updateUserConversations = /* GraphQL */ `
-  mutation UpdateUserConversations(
-    $input: UpdateUserConversationsInput!
-    $condition: ModelUserConversationsConditionInput
-  ) {
-    updateUserConversations(input: $input, condition: $condition) {
-      id
-      userId
-      conversationId
-      user {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      conversation {
-        id
-        lastMessageAt
-        createdAt
-        updatedAt
-        __typename
-      }
-      createdAt
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const deleteUserConversations = /* GraphQL */ `
-  mutation DeleteUserConversations(
-    $input: DeleteUserConversationsInput!
-    $condition: ModelUserConversationsConditionInput
-  ) {
-    deleteUserConversations(input: $input, condition: $condition) {
-      id
-      userId
-      conversationId
-      user {
-        id
-        name
-        phoneNumber
-        email
-        createdAt
-        updatedAt
-        __typename
-      }
-      conversation {
-        id
-        lastMessageAt
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename

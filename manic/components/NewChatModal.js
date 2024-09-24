@@ -1,30 +1,82 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, Auth} from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback, FlatList } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
+import { listFriendships } from '../src/graphql/queries';
+import {useAuthenticator} from '@aws-amplify/ui-react-native';
+import {createConversation} from '../src/graphql/mutations';
 
-const friendsList = [
-  { id: '1', name: 'Alice' },
-  { id: '2', name: 'Bob' },
-  { id: '3', name: 'Charlie' },
-  { id: '4', name: 'David' },
-  { id: '5', name: 'Eve' },
-];
+import { generateClient } from 'aws-amplify/api';
+const client = generateClient();
 
 const NewChatModal = ({ visible, onClose, onSave }) => {
+  const {user} = useAuthenticator((context) => [context.user]);
+  const [friends, setFriends] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredFriends, setFilteredFriends] = useState(friendsList);
   const [selectedFriend, setSelectedFriend] = useState(null);
 
+  useEffect(() => {
+    if(visible) {
+      getFriends();
+    }
+  }, [visible]);
+
+
+  const handleCreateNewConversation = async () => {
+    try {
+      const participants = [user.username, selectedFriend.name];
+      console.log(participants)
+
+      const conversationInput = {
+        participants: participants,
+        lastMessageAt: new Date().toISOString(),
+      };
+
+      const convoResponse = await client.graphql({
+        query: createConversation, 
+        variables: {
+          input: conversationInput
+        }
+      });
+
+      const conversation = convoResponse.data.createConversation;
+      console.log(conversation)
+
+      onSave(conversation);
+      onClose();
+    } catch (error) {
+      console.log("Error Creating New Conversation: ", error);
+    }
+  };
+
+  const getFriends = async() => {
+    try {
+      const fetchedFriends = await client.graphql({ query: listFriendships });  
+      const friendsList = fetchedFriends.data.listFriendships.items.filter(friendship =>
+        friendship.status === 'ACCEPTED'
+      ).map(friendship => {
+        return {
+          id: friendship.requesterId === user.userId ? friendship.requesteeId : friendship.requesterId,
+          name: friendship.requesterId === user.userId ? friendship.requestee : friendship.requester
+        };
+      });
+
+      setFriends(friendsList);
+      console.log(friends)
+    
+    } catch (error){
+      console.log("Error fetching friends (newChat): ", error);
+    }
+  };
   // Handle the search query and filter friends
   const handleSearch = (query) => {
     setSearchQuery(query);
     if (query) {
-      const filtered = friendsList.filter(friend => 
+      const filtered = friends.filter(friend => 
         friend.name.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredFriends(filtered);
     } else {
-      setFilteredFriends(friendsList);
+      setFilteredFriends(friends);
     }
   };
 
@@ -57,7 +109,7 @@ const NewChatModal = ({ visible, onClose, onSave }) => {
 
               {/* Friend List */}
               <FlatList
-                data={filteredFriends}
+                data={friends}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                   <TouchableOpacity
@@ -75,7 +127,7 @@ const NewChatModal = ({ visible, onClose, onSave }) => {
               {/* Save Button */}
               <Button
                 mode="contained"
-                onPress={() => {onSave(selectedFriend);onClose()}}
+                onPress={() => {handleCreateNewConversation()}}
                 disabled={!selectedFriend} // Disable button until a friend is selected
                 style={styles.saveButton}
               >

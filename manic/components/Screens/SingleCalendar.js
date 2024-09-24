@@ -7,9 +7,9 @@ import { useNavigation } from '@react-navigation/native';
 import React, {useState, useEffect} from 'react';
 import { updateCalendar } from '../../src/graphql/mutations';
 import { getCalendar } from '../../src/graphql/queries';
+import { eventsByCalendarIdAndId } from '../../src/graphql/queries';
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
-
-
 import {generateClient} from 'aws-amplify/api';
 import {Amplify} from 'aws-amplify';
 import amplifyconfig from '../../src/amplifyconfiguration.json';
@@ -34,6 +34,21 @@ const CreateNewEventButton = ({navigation, calendarId}) => {
     );
 }; 
 
+const getCalendarEvents = async(calendarId) => {
+  try {
+    const calendarEvents = await client.graphql({
+      query: eventsByCalendarIdAndId,
+      variables: {
+          calendarId: calendarId,
+          sortDirection: "ASC",
+          limit: 50,
+      }
+    })
+  }catch (error) {
+    console.log("Error Fetching this calendar's Events: ", error)
+  }
+};
+
 const UpdateCalendarDetails = ({isPrivate, calendarId, initialTitle}) => {
   const [calendarTitle, setCalendarTitle] = useState('');
   const [isCalendarPrivate, setIsCalendarPrivate] = useState();
@@ -42,7 +57,8 @@ const UpdateCalendarDetails = ({isPrivate, calendarId, initialTitle}) => {
   useEffect(() => {
     setCalendarTitle(initialTitle);
     setIsCalendarPrivate(isPrivate);    
-  }, [initialTitle, isPrivate])
+    getCalendarEvents(calendarId)
+  }, [calendarId, initialTitle, isPrivate])
 
   const HandleUpdateCalendar = async () => {
     console.log(calendarId, calendarTitle, isCalendarPrivate)

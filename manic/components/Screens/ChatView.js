@@ -1,46 +1,102 @@
+import React, { useState, useEffect, useRef} from 'react';
 import { useNavigation } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, StyleSheet, Alert } from 'react-native';
+import moment from 'moment'; 
+import {useAuthenticator} from '@aws-amplify/ui-react-native';
+
+
+import {createMessage} from '../../src/graphql/mutations';
+import {messagesByConversationIdAndId} from '../../src/graphql/queries';
+
+
+import { generateClient } from 'aws-amplify/api';
+const client = generateClient();
 
 const OpenChatViewScreen = ({ route }) => {
+  const {user} = useAuthenticator((context) => [context.user]);
   const navigation = useNavigation(); 
-  const { chatId, title } = route.params;
+  const {conversationId, title} = route.params;
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
-    { id: '1', text: 'Hello!', sender: 'other' },
-    { id: '2', text: 'How are you?', sender: 'user' },
-  ]);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     navigation.setOptions({ title: title });
-  }, [navigation, title]);
+    fetchAllMessages();
+  }, [conversationId,navigation, title]);
 
-  const sendMessage = () => {
-    if (message.trim()) {
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { id: Date.now().toString(), text: message, sender: 'user' },
-      ]);
-      setMessage('');
+
+  const fetchAllMessages = async() => {
+    try {
+      const messagesData = await client.graphql({ query: messagesByConversationIdAndId, variables: {conversationId: conversationId}});
+      let messagesList = messagesData.data.messagesByConversationIdAndId.items;
+      messagesList = messagesList.sort((a,b) => {
+        return new Date(a.createdAt) - new Date(b.createdAt)
+      })
+      setMessages(messagesList);
+    } catch (error){
+      console.log("Error Fetching All Messages: ", error);
     }
   };
 
-  const renderItem = ({ item }) => (
-    <View
-      style={[
-        styles.messageBubble,
-        item.sender === 'user' ? styles.userBubble : styles.otherBubble,
-      ]}
-    >
-      <Text 
-        style={[
-          styles.messageText,
-          item.sender === 'other' ? styles.otherMessageText : {},
-        ]}
-      >
-        {item.text}</Text>
-    </View>
-  );
+  // Function to determine if a timestamp should be shown
+  const shouldShowTimestamp = (currentMessage, previousMessage) => {
+    if (!previousMessage) return true; // Show timestamp for the first message
+    const currentTime = moment(currentMessage.createdAt);
+    const previousTime = moment(previousMessage.createdAt);
+    return currentTime.diff(previousTime, 'hours') >= 2; // Show timestamp if 2 or more hours have passed
+  };
+
+  const sendMessage = async () => {
+    console.log("SENT")
+    if (message.trim()) {
+      try {
+        const result = await client.graphql({
+          query: createMessage,
+          variables: {
+            input: {
+              content: message,
+              senderId: user.userId,
+              conversationId: conversationId,
+              createdAt: new Date().toISOString(),
+            }
+          }
+        });
+      } catch (error) {
+        console.log("Error Sending Message: ", error)
+      }
+    }
+    setMessage('');
+  };
+
+  const renderItem = ({ item, index }) => {
+    const previousMessage = messages[index - 1]; // Get the previous message
+    const showTimestamp = shouldShowTimestamp(item, previousMessage);
+
+    return (
+      <View>
+        {showTimestamp && (
+          <Text style={styles.timestamp}>
+            {moment(item.createdAt).format('LT - MMM D, YYYY')}
+          </Text> // Show formatted timestamp
+        )}
+        <View
+          style={[
+            styles.messageBubble,
+            item.senderId === user.userId ? styles.userBubble : styles.otherBubble,
+          ]}
+        >
+          <Text 
+            style={[
+              styles.messageText,
+              item.senderId !== user.userId ? styles.otherMessageText : {},
+            ]}
+          >
+            {item.content}
+          </Text>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -48,26 +104,24 @@ const OpenChatViewScreen = ({ route }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 125 : 60} // Adjust this value as needed
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.inner}>
-          <FlatList
-            data={messages}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            style={styles.messageList}
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
+      <View style={styles.inner}>
+        <FlatList
+          data={messages}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          style={styles.messageList}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
+        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Type a message..."
+            value={message}
+            onChangeText={setMessage}
           />
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Type a message..."
-              value={message}
-              onChangeText={setMessage}
-            />
-            <Button title="Send" onPress={sendMessage} />
-          </View>
+          <Button title="Send" onPress={sendMessage} />
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -121,6 +175,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     marginRight: 10,
+  },
+  timestamp: {
+    alignSelf: 'center',
+    marginVertical: 10,
+    fontSize: 12,
+    color: '#888',
   },
 });
 
